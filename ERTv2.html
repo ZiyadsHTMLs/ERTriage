@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نموذج فرز الطوارئ النفسية</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3347;
+    --text: #e8eaf0;
+    --muted: #8b90a0;
+    --accent: #4f8ef7;
+    --red:    #ff4757;
+    --orange: #ff6b35;
+    --yellow: #ffa502;
+    --green:  #2ed573;
+    --cat1: #ff4757;
+    --cat2: #e8b4b8;
+    --cat3: #7986cb;
+    --cat4: #64b5f6;
+    --cat5: #81c784;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #4f8ef7, #a78bfa);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .logo-text { font-size: 16px; font-weight: 700; }
+  .logo-sub  { font-size: 11px; color: var(--muted); font-weight: 400; }
+  .logo-credits { font-size: 10px; color: var(--muted); font-weight: 400; opacity: .7; margin-top: 2px; }
+
+  .header-left { display: flex; align-items: center; gap: 10px; }
+
+  .score-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 16px;
+    direction: ltr;
+  }
+  .score-num { font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; transition: color .3s; }
+  .score-label { font-size: 10px; color: var(--muted); white-space: nowrap; font-family: 'Tajawal', sans-serif; }
+
+  .btn-reset {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); border-radius: 8px;
+    padding: 7px 14px; cursor: pointer; font-size: 13px;
+    font-family: 'Tajawal', sans-serif;
+    transition: all .2s;
+  }
+  .btn-reset:hover { border-color: var(--accent); color: var(--text); }
+
+  .btn-print {
+    background: var(--accent); border: none;
+    color: #fff; border-radius: 8px;
+    padding: 7px 16px; cursor: pointer;
+    font-size: 13px; font-weight: 600;
+    font-family: 'Tajawal', sans-serif;
+    transition: opacity .2s;
+  }
+  .btn-print:hover { opacity: .85; }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 960px; margin: 0 auto;
+    padding: 24px 20px 130px;
+  }
+
+  /* Patient info bar */
+  .patient-bar {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin-bottom: 20px;
+  }
+  .field label {
+    font-size: 11px; color: var(--muted);
+    display: block; margin-bottom: 5px;
+    font-weight: 500;
+  }
+  .field input, .field select {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 10px;
+    color: var(--text); font-size: 13px; width: 100%;
+    font-family: 'Tajawal', sans-serif;
+    outline: none; transition: border-color .2s;
+    direction: rtl;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+
+  /* ── SECTION CARDS ── */
+  .section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; margin-bottom: 14px; overflow: hidden;
+  }
+  .section-header {
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none;
+  }
+  .section-header:hover { background: var(--surface2); }
+
+  .section-badge {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .section-title { font-size: 14px; font-weight: 700; flex: 1; }
+  .section-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 3px 8px;
+    direction: ltr; white-space: nowrap;
+  }
+  .section-chevron {
+    color: var(--muted); font-size: 12px; transition: transform .2s;
+  }
+  /* For RTL, collapsed rotates opposite way */
+  .section.collapsed .section-chevron { transform: rotate(90deg); }
+  .section.collapsed .section-body { display: none; }
+  .section-body { padding: 4px 0; }
+
+  /* ITEMS */
+  .item {
+    padding: 13px 18px;
+    display: flex; align-items: flex-start; gap: 14px;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: var(--surface2); }
+
+  .item-info { flex: 1; }
+  .item-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; line-height: 1.4; }
+  .item-desc { font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .item-weight {
+    font-size: 11px; color: var(--muted);
+    margin-top: 5px; direction: rtl;
+  }
+
+  /* Toggle buttons */
+  .toggle-group {
+    display: flex; gap: 5px; flex-shrink: 0; margin-top: 2px;
+    flex-direction: row-reverse; /* نعم on left visually = right in RTL flow */
+  }
+  .toggle-btn {
+    border: 1px solid var(--border); background: var(--bg);
+    border-radius: 6px; padding: 7px 18px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+    font-family: 'Tajawal', sans-serif;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .toggle-btn.yes.active {
+    background: rgba(255,71,87,.15);
+    border-color: var(--red); color: var(--red);
+  }
+  .toggle-btn.no.active {
+    background: rgba(46,213,115,.12);
+    border-color: var(--green); color: var(--green);
+  }
+  .toggle-btn:hover:not(.active) {
+    border-color: var(--muted); color: var(--text);
+  }
+
+  /* ── RESULT BANNER ── */
+  .result-banner {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 200;
+  }
+  .result-inner {
+    max-width: 960px; margin: 0 auto;
+    padding: 0 20px 16px;
+  }
+  .result-card {
+    border-radius: 14px; padding: 18px 24px;
+    display: flex; align-items: center; gap: 20px;
+    border: 1px solid transparent;
+    backdrop-filter: blur(12px);
+    transition: all .4s;
+  }
+  .result-level-badge {
+    font-size: 28px; font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1; flex-shrink: 0;
+    direction: ltr;
+  }
+  .result-divider {
+    width: 1px; height: 52px; background: rgba(255,255,255,.1); flex-shrink: 0;
+  }
+  .result-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .result-subtitle { font-size: 12px; opacity: .8; line-height: 1.5; }
+  .result-time {
+    margin-right: auto; /* pushes to the left in RTL */
+    text-align: left;
+    flex-shrink: 0;
+    direction: ltr;
+  }
+  .result-time-num {
+    font-size: 20px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .result-time-label {
+    font-size: 10px; opacity: .6;
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+    text-align: right;
+  }
+
+  /* Level colors */
+  .level-1 { background: rgba(255,71,87,.18); border-color: rgba(255,71,87,.5); }
+  .level-1 .result-level-badge { color: var(--red); }
+  .level-2 { background: rgba(255,107,53,.18); border-color: rgba(255,107,53,.5); }
+  .level-2 .result-level-badge { color: var(--orange); }
+  .level-3 { background: rgba(255,165,2,.18); border-color: rgba(255,165,2,.5); }
+  .level-3 .result-level-badge { color: var(--yellow); }
+  .level-4 { background: rgba(100,181,246,.15); border-color: rgba(100,181,246,.45); }
+  .level-4 .result-level-badge { color: #64b5f6; }
+  .level-neutral { background: rgba(139,144,160,.1); border-color: var(--border); }
+  .level-neutral .result-level-badge { color: var(--muted); }
+
+  /* Score colors */
+  .score-critical { color: var(--red); }
+  .score-high     { color: var(--orange); }
+  .score-moderate { color: var(--yellow); }
+  .score-low      { color: #64b5f6; }
+  .score-default  { color: var(--text); }
+
+  /* Badge colors */
+  .badge-1 { background: rgba(255,71,87,.2); color: var(--red); }
+  .badge-2 { background: rgba(232,180,184,.2); color: var(--cat2); }
+  .badge-3 { background: rgba(121,134,203,.2); color: var(--cat3); }
+  .badge-4 { background: rgba(100,181,246,.2); color: var(--cat4); }
+  .badge-5 { background: rgba(129,199,132,.2); color: var(--cat5); }
+
+  /* Red flag tag */
+  .red-flag-tag {
+    display: inline-block;
+    color: var(--red); font-size: 11px;
+    margin-right: 6px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .patient-bar { grid-template-columns: 1fr 1fr; }
+    .result-card { flex-wrap: wrap; gap: 12px; }
+    .result-time { margin-right: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🧠</div>
+    <div>
+      <div class="logo-text">فرز الطوارئ النفسية</div>
+      <div class="logo-sub">نموذج التقييم النفسي في الطوارئ</div>
+      <div class="logo-credits">| إعداد: د. نوران مليباري | تنفيذ: د. زياد المالكي | ©جميع الحقوق محفوظة لمستشفى إرادة والصحة النفسية بالمدينة المنورة</div>
+    </div>
+  </div>
+  <div class="header-left">
+    <div class="score-pill">
+      <div class="score-label">/ ٢١ نقطة</div>
+      <div class="score-num score-default" id="totalScore">٠</div>
+    </div>
+    <button class="btn-print" onclick="window.print()">🖨 طباعة</button>
+    <button class="btn-reset" onclick="resetAll()">↺ إعادة تعيين</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- بيانات المريض -->
+  <div class="patient-bar">
+    <div class="field">
+      <label>اسم المريض</label>
+      <input type="text" id="pName" placeholder="الاسم الكامل">
+    </div>
+    <div class="field">
+      <label>رقم الهوية / الملف</label>
+      <input type="text" id="pID" placeholder="رقم المريض">
+    </div>
+    <div class="field">
+      <label>العمر</label>
+      <input type="number" id="pAge" placeholder="العمر بالسنوات">
+    </div>
+    <div class="field">
+      <label>الجنس</label>
+      <select id="pGender">
+        <option value="">—</option>
+        <option>ذكر</option>
+        <option>أنثى</option>
+        <option>غير محدد</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>جهة الإحالة</label>
+      <select id="pRef">
+        <option value="">—</option>
+        <option>المريض (ذاتي)</option>
+        <option>الأسرة</option>
+        <option>الشرطة / الإسعاف</option>
+        <option>طبيب آخر</option>
+        <option>أخرى</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>اسم الممرض / المقيّم</label>
+      <input type="text" id="pNurse" placeholder="اسم المقيّم">
+    </div>
+  </div>
+
+  <!-- الأقسام -->
+  <div id="sections"></div>
+
+</div>
+
+<!-- شريط النتيجة -->
+<div class="result-banner">
+  <div class="result-inner">
+    <div class="result-card level-neutral" id="resultCard">
+      <div class="result-level-badge" id="resultBadge">—</div>
+      <div class="result-divider"></div>
+      <div style="flex:1">
+        <div class="result-title" id="resultTitle">ابدأ التقييم</div>
+        <div class="result-subtitle" id="resultSub">أجب على البنود أعلاه لتحديد مستوى الفرز.</div>
+      </div>
+      <div class="result-time">
+        <div class="result-time-num" id="resultTime">—</div>
+        <div class="result-time-label">الوقت المستهدف</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────
+   نظام التسجيل
+   القسم 1: السلامة الفورية والخطورة   → 8 نقاط
+   القسم 2: المظهر العام والسلوك       → 4 نقاط
+   القسم 3: الأعراض المحورية           → 4 نقاط
+   القسم 4: الاستبعادات العضوية        → 3 نقاط
+   القسم 5: الآثار الجانبية للأدوية   → 2 نقاط
+   الإجمالي: 21 نقطة
+
+   مستوى 1 – طارئ    : ≥15 نقطة أو وجود علامة حمراء
+   مستوى 2 – عاجل    : 9–14 نقطة
+   مستوى 3 – شبه عاجل: 5–8 نقاط
+   مستوى 4 – روتيني  : 0–4 نقاط
+───────────────────────────────────────────── */
+
+const DATA = [
+  {
+    id: 's1',
+    title: 'السلامة الفورية وتقييم الخطورة',
+    subtitle: 'بنود "لا يمكن تجاهلها"',
+    badgeClass: 'badge-1',
+    items: [
+      {
+        id: 'i1a',
+        name: 'الأفكار الانتحارية',
+        desc: 'وجود أفكار أو نية أو خطة محددة للانتحار، أو توافر وسائل قاتلة في متناول المريض',
+        weight: 3,
+        redFlag: true,
+        tip: '+٣ نقاط ⚑ علامة حمراء → مستوى ١ تلقائياً'
+      },
+      {
+        id: 'i1b',
+        name: 'خطر العنف / العدوانية',
+        desc: 'هياج واضح، تهديدات لفظية، مواقف جسدية تهديدية، أو عنف حديث',
+        weight: 2,
+        redFlag: true,
+        tip: '+٢ نقاط ⚑ علامة حمراء → مستوى ١ تلقائياً'
+      },
+      {
+        id: 'i1c',
+        name: 'إيذاء النفس (NSSI)',
+        desc: 'إيذاء النفس غير الانتحاري الحديث أو النية لإيذاء الذات',
+        weight: 2,
+        redFlag: false,
+        tip: '+٢ نقاط'
+      },
+      {
+        id: 'i1d',
+        name: 'إهمال النفس / العجز الشديد',
+        desc: 'عدم القدرة على تلبية الاحتياجات الأساسية: الطعام، المأوى، أو النظافة الشخصية',
+        weight: 1,
+        redFlag: false,
+        tip: '+١ نقطة'
+      }
+    ]
+  },
+  {
+    id: 's2',
+    title: 'المظهر العام والسلوك',
+    subtitle: 'مسح الحالة الذهنية',
+    badgeClass: 'badge-2',
+    items: [
+      {
+        id: 'i2a',
+        name: 'اضطراب مستوى الوعي',
+        desc: 'نعاس، تذبذب في اليقظة، أو علامات الهذيان (Delirium)',
+        weight: 2,
+        redFlag: false,
+        tip: '+٢ نقاط'
+      },
+      {
+        id: 'i2b',
+        name: 'اضطراب حركي نفسي شديد',
+        desc: 'هياج حركي واضح (التجوال، عدم القدرة على الجلوس) أو بطء نفسي حركي شديد',
+        weight: 1,
+        redFlag: false,
+        tip: '+١ نقطة'
+      },
+      {
+        id: 'i2c',
+        name: 'تواصل عدائي / متحفظ',
+        desc: 'غياب التواصل البصري أو العدائية الواضحة، تواصل مشوّش أو تهديدي',
+        weight: 1,
+        redFlag: false,
+        tip: '+١ نقطة'
+      }
+    ]
+  },
+  {
+    id: 's3',
+    title: 'فحص الأعراض المحورية',
+    subtitle: 'الأعراض العابرة للتشخيصات',
+    badgeClass: 'badge-3',
+    items: [
+      {
+        id: 'i3a',
+        name: 'ذهان نشط',
+        desc: 'هلاوس آمرة، أوهام واضحة (اضطهادية أو عظمة)، أو اضطراب تفكير',
+        weight: 2,
+        redFlag: false,
+        tip: '+٢ نقاط'
+      },
+      {
+        id: 'i3b',
+        name: 'نوبة مزاجية حادة',
+        desc: 'اكتئاب شديد (فقدان المتعة، يأس) أو هوس (كلام متسارع، تشتت الأفكار)',
+        weight: 1,
+        redFlag: false,
+        tip: '+١ نقطة'
+      },
+      {
+        id: 'i3c',
+        name: 'قلق حاد / هلع',
+        desc: 'أعراض جسدية حادة لنوبة هلع أو قلق شديد لا يمكن السيطرة عليه',
+        weight: 1,
+        redFlag: false,
+        tip: '+١ نقطة'
+      }
+    ]
+  },
+  {
+    id: 's4',
+    title: 'الاستبعادات الجسدية والعضوية',
+    subtitle: 'شاشة التخليص الطبي',
+    badgeClass: 'badge-4',
+    items: [
+      {
+        id: 'i4a',
+        name: 'علامات حيوية غير مستقرة',
+        desc: 'تسارع قلب، حمى، نقص أكسجين، نقص سكر، أو ارتفاع ضغط حاد',
+        weight: 2,
+        redFlag: false,
+        tip: '+٢ نقاط → يُفضّل التخليص الطبي أولاً'
+      },
+      {
+        id: 'i4b',
+        name: 'تسمم أو انسحاب من المواد',
+        desc: 'علامات التسمم الحالي أو الانسحاب: رعشة، تعرق، اتساع حدقة العين، CIWA ≥ 8',
+        weight: 1,
+        redFlag: false,
+        tip: '+١ نقطة'
+      }
+    ]
+  },
+  {
+    id: 's5',
+    title: 'آثار جانبية للأدوية / جرعة زائدة',
+    subtitle: 'الفحص الدوائي والسمّي',
+    badgeClass: 'badge-5',
+    items: [
+      {
+        id: 'i5a',
+        name: 'سمية دوائية حادة أو جرعة زائدة',
+        desc: 'علامات متلازمة NMS، متلازمة السيروتونين، سمية الليثيوم، عسر الحركة الحاد، أو جرعة زائدة مشتبه بها',
+        weight: 2,
+        redFlag: false,
+        tip: '+٢ نقاط → يلزم استقرار طبي'
+      }
+    ]
+  }
+];
+
+// الحالة
+const state = {};
+
+// تحويل الأرقام إلى العربية
+function toAr(n) {
+  return String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+
+function init() {
+  DATA.forEach(sec => sec.items.forEach(item => { state[item.id] = null; }));
+  renderSections();
+}
+
+function renderSections() {
+  const container = document.getElementById('sections');
+  container.innerHTML = '';
+
+  DATA.forEach((sec, si) => {
+    const div = document.createElement('div');
+    div.className = 'section';
+    div.id = sec.id;
+
+    div.innerHTML = `
+      <div class="section-header" onclick="toggleSection('${sec.id}')">
+        <div class="section-badge ${sec.badgeClass}">${si + 1}</div>
+        <div style="flex:1">
+          <div class="section-title">${sec.title}</div>
+          <div style="font-size:11px;color:var(--muted)">${sec.subtitle}</div>
+        </div>
+        <div class="section-score" id="score-${sec.id}">٠ / ${toAr(maxSection(sec))} نقطة</div>
+        <div class="section-chevron">▾</div>
+      </div>
+      <div class="section-body">
+        ${sec.items.map(item => renderItem(item)).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderItem(item) {
+  const redFlagHtml = item.redFlag
+    ? `<span class="red-flag-tag">⚑ علامة حمراء</span>`
+    : '';
+  return `
+    <div class="item" id="row-${item.id}">
+      <div class="toggle-group">
+        <button class="toggle-btn no"  onclick="setAnswer('${item.id}', false)">لا</button>
+        <button class="toggle-btn yes" onclick="setAnswer('${item.id}', true)">نعم</button>
+      </div>
+      <div class="item-info">
+        <div class="item-name">${redFlagHtml}${item.name}</div>
+        <div class="item-desc">${item.desc}</div>
+        <div class="item-weight">${item.tip}</div>
+      </div>
+    </div>
+  `;
+}
+
+function maxSection(sec) {
+  return sec.items.reduce((s, i) => s + i.weight, 0);
+}
+
+function setAnswer(id, val) {
+  state[id] = val;
+  const row = document.getElementById('row-' + id);
+  row.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  row.querySelector(val ? '.yes' : '.no').classList.add('active');
+  updateScores();
+}
+
+function updateScores() {
+  let total = 0;
+  let hasRedFlag = false;
+
+  DATA.forEach(sec => {
+    let secScore = 0;
+    sec.items.forEach(item => {
+      if (state[item.id] === true) {
+        secScore += item.weight;
+        total += item.weight;
+        if (item.redFlag) hasRedFlag = true;
+      }
+    });
+    document.getElementById('score-' + sec.id).textContent =
+      `${toAr(secScore)} / ${toAr(maxSection(sec))} نقطة`;
+  });
+
+  const scoreEl = document.getElementById('totalScore');
+  scoreEl.textContent = toAr(total);
+  scoreEl.className = 'score-num ' + getScoreClass(total, hasRedFlag);
+
+  updateResult(total, hasRedFlag);
+}
+
+function getScoreClass(total, red) {
+  if (red || total >= 15) return 'score-critical';
+  if (total >= 9)         return 'score-high';
+  if (total >= 5)         return 'score-moderate';
+  if (total >= 1)         return 'score-low';
+  return 'score-default';
+}
+
+function updateResult(total, hasRedFlag) {
+  const card  = document.getElementById('resultCard');
+  const badge = document.getElementById('resultBadge');
+  const title = document.getElementById('resultTitle');
+  const sub   = document.getElementById('resultSub');
+  const time  = document.getElementById('resultTime');
+
+  const answered = Object.values(state).filter(v => v !== null).length;
+
+  if (answered === 0) {
+    card.className = 'result-card level-neutral';
+    badge.textContent = '—';
+    title.textContent = 'ابدأ التقييم';
+    sub.textContent = 'أجب على البنود أعلاه لتحديد مستوى الفرز.';
+    time.textContent = '—';
+    return;
+  }
+
+  let level, levelClass, titleText, subText, timeText;
+
+  if (hasRedFlag || total >= 15) {
+    level = '1'; levelClass = 'level-1';
+    titleText = 'المستوى ١ — طارئ';
+    subText = hasRedFlag
+      ? '⚑ علامة حمراء: أفكار انتحارية نشطة أو خطر عنف. يلزم التدخل الفوري.'
+      : `درجة حرجة (${toAr(total)}/٢١). يلزم تدخل نفسي فوري.`;
+    timeText = 'فوري';
+  } else if (total >= 9) {
+    level = '2'; levelClass = 'level-2';
+    titleText = 'المستوى ٢ — عاجل';
+    subText = `عبء أعراض مرتفع (${toAr(total)}/٢١). تقييم نفسي خلال ٣٠ دقيقة.`;
+    timeText = '< ٣٠ دقيقة';
+  } else if (total >= 5) {
+    level = '3'; levelClass = 'level-3';
+    titleText = 'المستوى ٣ — شبه عاجل';
+    subText = `شدة متوسطة (${toAr(total)}/٢١). تقييم خلال ساعتين. مراقبة أي تدهور.`;
+    timeText = '< ساعتين';
+  } else {
+    level = '4'; levelClass = 'level-4';
+    titleText = 'المستوى ٤ — روتيني';
+    subText = `خطر فوري منخفض (${toAr(total)}/٢١). أعراض مستقرة. تقييم في نفس اليوم أو بموعد.`;
+    timeText = 'نفس اليوم';
+  }
+
+  card.className = `result-card ${levelClass}`;
+  badge.textContent = 'م' + level;
+  title.textContent = titleText;
+  sub.textContent = subText;
+  time.textContent = timeText;
+}
+
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+function resetAll() {
+  Object.keys(state).forEach(k => { state[k] = null; });
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  ['pName','pID','pAge','pNurse'].forEach(id => { document.getElementById(id).value = ''; });
+  ['pGender','pRef'].forEach(id => { document.getElementById(id).value = ''; });
+  updateScores();
+}
+
+init();
+</script>
+</body>
+</html>
